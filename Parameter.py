@@ -1,5 +1,7 @@
 import cv2
 import pandas as pd
+import openpyxl
+
 from ssim import cal_ssim
 from psnr import PSNR
 from corr import corr
@@ -45,6 +47,10 @@ def main():
     df2 = pd.DataFrame([[ssim, psnr, mse, corr], [ssim1, psnr1, mse1, corr1]], index=['Hazy~Ground truth', 'Dehazed~Ground truth'], columns=['SSIM', 'PSNR', 'MSE', 'CORRELATION'])
 
     print(df2)
+
+    with pd.ExcelWriter('Parameter.xlsx') as writer:
+        df.to_excel(writer, sheet_name='No Reference Parameter')
+        df2.to_excel(writer, sheet_name='Reference Parameter')
 
 
 if __name__ == "__main__":
