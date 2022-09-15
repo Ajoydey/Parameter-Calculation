@@ -1,4 +1,5 @@
 import cv2
+import pandas as pd
 from ssim import cal_ssim
 from psnr import PSNR
 from corr import corr
@@ -24,29 +25,26 @@ def noReferenceParameter(img):
 
 
 def main():
-    hazy = cv2.imread('pics/3I.jpg')
-    dehazed = cv2.imread('pics/3J.jpg')
+    hazy = cv2.imread('pics\hazy.jpg')
+    dehazed = cv2.imread('pics\dehazed.jpg')
+    gt = cv2.imread('pics\gt.jpg')
 
-    brisque, entropy, mean, std = noReferenceParameter(hazy)
-    print("No reference parameter values for hazy image:\n")
-    print(f"BRISQUE value is {brisque}")
-    print(f"Entropy value channelwise {entropy}")
-    print(f"Mean values are {mean}")
-    print(f"Standard deviation values are {std}")
+    brisque_hazy, entropy_hazy, mean_hazy, std_hazy = noReferenceParameter(hazy)
 
-    brisque, entropy, mean, std = noReferenceParameter(dehazed)
-    print("\nNo reference parameter values for dehazed image:\n")
-    print(f"BRISQUE value is {brisque}")
-    print(f"Entropy value channelwise {entropy}")
-    print(f"Mean values are {mean}")
-    print(f"Standard deviation values are {std}")
+    brisque_dehazed, entropy_dehazed, mean_dehazed, std_dehazed = noReferenceParameter(dehazed)
 
-    ssim, psnr, mse, corr = referenceParameter(hazy, dehazed)
-    print("\nReference parameter values:\n")
-    print(f"SSIM value is {ssim}")
-    print(f"PSNR value is {psnr} dB")
-    print(f"MSE value is {mse} dB")
-    print(f"Correlation value is {corr} dB")
+    brisque_gt, entropy_gt, mean_gt, std_gt = noReferenceParameter(gt)
+
+    df = pd.DataFrame([[brisque_hazy, mean_hazy, std_hazy, entropy_hazy[0], entropy_hazy[1], entropy_hazy[2]], [brisque_dehazed, mean_dehazed, std_dehazed, entropy_dehazed[0], entropy_dehazed[1], entropy_dehazed[2]], [brisque_gt, mean_gt, std_gt, entropy_gt[0], entropy_gt[1], entropy_gt[2]]], index=['Hazy pic', 'Dehazed pic', 'Ground truth'], columns=['BRISQUE_VALUE', 'MEAN', 'STANDARD DEVIATION', 'ENTROPY_B', 'ENTROPY_G', 'ENTROPY_R'])
+
+    print(df)
+
+    ssim, psnr, mse, corr = referenceParameter(hazy, gt)
+    ssim1, psnr1, mse1, corr1 = referenceParameter(dehazed, gt)
+
+    df2 = pd.DataFrame([[ssim, psnr, mse, corr], [ssim1, psnr1, mse1, corr1]], index=['Hazy~Ground truth', 'Dehazed~Ground truth'], columns=['SSIM', 'PSNR', 'MSE', 'CORRELATION'])
+
+    print(df2)
 
 
 if __name__ == "__main__":
